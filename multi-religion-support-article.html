@@ -177,7 +177,7 @@
                 resizePreview();
 
                 var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/manage/design/modDeviceFormat/', true);
+        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/design/modDeviceFormat/', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('format=' + device + '&VjVVNlQ5T09yM1U4KzUvd1dIR1VnUT09=eWQzaWptdjFIK3RIM3ZHQ0xhRmx3dz09');
             }
@@ -258,7 +258,7 @@
 
     function saveUserMobileDeviceChoice(mobileDevice) {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/manage/preview/saveUserMobileDeviceChoice/');
+        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/preview/saveUserMobileDeviceChoice/');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         const args = 'mobileDevice=' + encodeURIComponent(mobileDevice);
@@ -378,7 +378,7 @@
         }
 
         if (e.data.previewUrl) {
-            var urlPath = '/manage/preview' + e.data.previewUrl;
+            var urlPath = 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/preview' + e.data.previewUrl;
             urlPath = urlPath.replace(/[&?](static|latitude|longitude)=([\-0-9\.]*)/g, '');
             if (document.location.search) {
                 var tmp = document.location.search.replace(/^[&\?]/, '').split('&');

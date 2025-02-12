@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <html><head>
+    
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N3QBH8LM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-N3QBH8LM');
+</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N3QBH8LM');</script>
+<!-- End Google Tag Manager -->
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>multi-religion support</title>
     <link rel="stylesheet" type="text/css" href="https://multi-religion-support.multireligionvalsystem.eu.org/lato.css">
@@ -24,11 +41,11 @@
     <div class="infos">
                 <a href="https://multi-religion-support.multireligionvalsystem.eu.org/" target="_blank" class="help">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> <path d="M0 0h24v24H0z" fill="none"></path><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"></path> </svg>        </a>
-        <p class="left-preview-info">You are now in preview mode</p>
+        <p class="left-preview-info">FDU</p>
 
 
                 <div class="center-text">
-            <p class="center-preview-info hidden">You are now in preview mode</p>
+            <p class="center-preview-info hidden">FDUe</p>
         </div>
 
         <div id="availableMobileDevicesContainer">
@@ -177,7 +194,7 @@
                 resizePreview();
 
                 var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/manage/design/modDeviceFormat/', true);
+        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/design/modDeviceFormat/', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('format=' + device + '&VjVVNlQ5T09yM1U4KzUvd1dIR1VnUT09=eWQzaWptdjFIK3RIM3ZHQ0xhRmx3dz09');
             }
@@ -258,7 +275,7 @@
 
     function saveUserMobileDeviceChoice(mobileDevice) {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/manage/preview/saveUserMobileDeviceChoice/');
+        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/preview/saveUserMobileDeviceChoice/');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         const args = 'mobileDevice=' + encodeURIComponent(mobileDevice);
@@ -429,10 +446,10 @@
                     let args = '';
 
                     if (item.type === 'commerceProductNotFound') {
-                        xhr.open('POST', '/manage/cms/commerce/' + 'getModelBySlug/');
+                        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/cms/commerce/' + 'getModelBySlug/');
                         args = 'slug=' + encodeURIComponent(item.slug) + '&';
                     } else {
-                        xhr.open('POST', '/manage/cms/article/' + item.itemId + '/getModel/');
+                        xhr.open('POST', 'https://multi-religion-support.multireligionvalsystem.eu.org/manage/cms/article/' + item.itemId + '/getModel/');
                     }
                     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     xhr.onload = function () {

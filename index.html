@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Religion Election System — MRVS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'space': ['"Space Grotesk"', 'sans-serif'],
+                        'geist': ['"Geist"', 'sans-serif'],
+                        'mono': ['"Geist Mono"', 'monospace'],
+                    },
+                    colors: {
+                        trust: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #050505;
+            font-family: 'Geist', sans-serif;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0px); }
+        }
+        .fade-up {
+            opacity: 0;
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+
+        .title-gradient {
+            background: linear-gradient(to bottom, #ffffff, rgba(255,255,255,0.6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-gradient {
+            background: linear-gradient(to top right, #06b6d4, #67e8f9);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 4rem 4rem;
+            mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+        }
+
+        .glow-btn {
+            box-shadow: 0 0 18px rgba(6,182,212,0.55);
+            transition: all 0.3s ease;
+        }
+        .glow-btn:hover {
+            box-shadow: 0 0 34px rgba(6,182,212,0.55);
+        }
+
+        .card-highlight {
+            background-image: radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 50%);
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.08; transform: scale(1); }
+            50% { opacity: 0.14; transform: scale(1.05); }
+        }
+        .pulse-glow {
+            animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .disadvantage-card {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .disadvantage-card:hover {
+            border-color: rgba(6,182,212,0.35);
+            transform: translateY(-2px);
+        }
+        .disadvantage-card:hover .card-number {
+            color: #22d3ee;
+            text-shadow: 0 0 24px rgba(6,182,212,0.55);
+        }
+        .disadvantage-card:hover .card-icon {
+            color: #06b6d4;
+        }
+
+        .nav-link {
+            transition: color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+        }
+
+        .section-observer {
+            opacity: 0;
+            transform: translateY(20px);
+            filter: blur(4px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section-observer.visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0px);
+        }
+    </style>
+</head>
+<body class="text-white antialiased">
+
+    <!-- Digital Rain Canvas -->
+    <canvas id="rain-canvas" class="fixed inset-0 w-full h-full pointer-events-none" style="opacity:0.2; z-index:0;"></canvas>
+
+    <!-- Background Glows -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0;">
+        <div class="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full pulse-glow" style="background: radial-gradient(circle, rgba(6,182,212,0.08), transparent 70%);"></div>
+        <div class="absolute bottom-[-200px] right-[-200px] w-[800px] h-[600px] rounded-full pulse-glow" style="background: radial-gradient(circle, rgba(6,182,212,0.05), transparent 70%); animation-delay: 3s;"></div>
+    </div>
+
+    <!-- Grid Background -->
+    <div class="fixed inset-0 grid-bg pointer-events-none" style="z-index:0;"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-5xl h-12 z-50 flex items-center justify-between pl-6 pr-2 rounded-full border border-white/10 shadow-2xl" style="background: rgba(10,10,10,0.8); backdrop-filter: blur(12px);">
+        <a href="#" class="flex items-center gap-2.5">
+            <div class="h-6 w-6 rounded logo-gradient flex items-center justify-center" style="box-shadow: 0 0 18px rgba(6,182,212,0.55);">
+                <iconify-icon icon="lucide:vote" width="14" class="text-black"></iconify-icon>
+            </div>
+            <span class="font-space font-semibold text-sm tracking-tight">MRVS</span>
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+            <a href="#about" class="nav-link text-xs text-neutral-400 font-medium">About</a>
+            <a href="#support" class="nav-link text-xs text-neutral-400 font-medium">Multi-Religion Support</a>
+            <a href="#disadvantages" class="nav-link text-xs text-neutral-400 font-medium">SST Issues</a>
+            <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="nav-link text-xs text-neutral-400 font-medium">Read More</a>
+        </div>
+        <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="h-8 px-4 rounded-full bg-trust-500 text-black text-xs font-semibold flex items-center gap-1.5 glow-btn">
+            Explore
+            <iconify-icon icon="lucide:arrow-right" width="12"></iconify-icon>
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative" style="z-index:1;">
+
+        <!-- Hero Section -->
+        <section class="min-h-[80vh] flex flex-col items-center justify-center pt-40 pb-20 px-6 text-center">
+            <div class="fade-up">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 mb-8" style="background: rgba(6,182,212,0.05); backdrop-filter: blur(4px);">
+                    <div class="w-1.5 h-1.5 rounded-full bg-trust-500" style="box-shadow: 0 0 8px rgba(6,182,212,0.55);"></div>
+                    <span class="text-[11px] font-medium tracking-wider uppercase text-trust-400">Financial Module</span>
+                </div>
+            </div>
+            <h1 class="font-space font-bold tracking-tight leading-[0.95] title-gradient text-5xl md:text-7xl lg:text-8xl max-w-5xl fade-up delay-100">
+                Multi-Religion<br>Support
+            </h1>
+            <p class="mt-8 text-lg md:text-xl font-light text-neutral-400 tracking-tight leading-relaxed max-w-2xl fade-up delay-200">
+                The independent financial module within the Multi-Religion Election System — replacing tax-dependent funding with transparent, democracy-linked support.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center gap-4 mt-10 fade-up delay-300">
+                <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="h-12 px-8 rounded-full bg-trust-500 text-black text-sm font-semibold tracking-tight flex items-center gap-2 glow-btn">
+                    Read Full Details
+                    <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon>
+                </a>
+                <a href="#about" class="h-12 px-8 rounded-full bg-white/5 border border-white/10 text-sm font-medium tracking-tight flex items-center gap-2 hover:bg-white/10 transition-all">
+                    Learn More
+                    <iconify-icon icon="lucide:arrow-down" width="16"></iconify-icon>
+                </a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-24 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="section-observer">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                        <!-- Left column -->
+                        <div class="lg:col-span-5">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 mb-6" style="background: rgba(6,182,212,0.05);">
+                                <iconify-icon icon="lucide:info" width="12" class="text-trust-400"></iconify-icon>
+                                <span class="text-[11px] font-medium tracking-wider uppercase text-trust-400">What It Is</span>
+                            </div>
+                            <h2 class="font-space font-bold tracking-tight leading-[1.05] title-gradient text-3xl md:text-4xl">
+                                What the Multi-Religion Support does
+                            </h2>
+                        </div>
+                        <!-- Right column -->
+                        <div class="lg:col-span-7 space-y-6">
+                            <p class="text-lg font-light text-neutral-400 tracking-tight leading-relaxed">
+                                The Multi-Religion Support is the financial module within the Multi-Religion Election System (MRVS) and is independent of the funding support system for religious communities that introduce democracy in their religious communities.
+                            </p>
+                            <p class="text-lg font-light text-neutral-400 tracking-tight leading-relaxed">
+                                The Multi-Religion Support replaces the current SST Foundation, a government grant that is dependent on tax funds.
+                            </p>
+                            <div class="p-6 rounded-2xl border border-white/10 card-highlight" style="background: rgba(6,182,212,0.03);">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-trust-500/10 border border-trust-500/20 flex items-center justify-center mt-0.5">
+                                        <iconify-icon icon="lucide:shield-check" width="18" class="text-trust-400"></iconify-icon>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-white mb-1">Independent & Democracy-Linked</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">Funding is tied to the introduction of democratic processes within religious communities — not to tax revenue or political influence.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Divider -->
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="h-px w-full" style="background: linear-gradient(to right, transparent, rgba(6,182,212,0.25), transparent);"></div>
+        </div>
+
+        <!-- SST Foundation Disadvantages Section -->
+        <section id="disadvantages" class="py-24 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="section-observer">
+                    <!-- Section Header -->
+                    <div class="text-center mb-16">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/20 mb-6" style="background: rgba(239,68,68,0.05);">
+                            <iconify-icon icon="lucide:alert-triangle" width="12" class="text-red-400"></iconify-icon>
+                            <span class="text-[11px] font-medium tracking-wider uppercase text-red-400">Critical Issues</span>
+                        </div>
+                        <h2 class="font-space font-bold tracking-tight leading-[1.05] title-gradient text-3xl md:text-5xl max-w-3xl mx-auto">
+                            SST Foundation Disadvantages
+                        </h2>
+                        <p class="mt-6 text-lg font-light text-neutral-400 tracking-tight leading-relaxed max-w-2xl mx-auto">
+                            The current system creates structural problems that undermine religious independence and democratic integrity.
+                        </p>
+                    </div>
+
+                    <!-- Disadvantage Cards -->
+                    <div class="space-y-6">
+
+                        <!-- Card 1 -->
+                        <div class="disadvantage-card group p-8 rounded-2xl border border-white/10 card-highlight" style="background: #0a0a0a;">
+                            <div class="flex items-start gap-6">
+                                <div class="flex-shrink-0">
+                                    <span class="card-number font-space text-3xl font-bold text-neutral-600 transition-all duration-500">01</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <iconify-icon icon="lucide:banknote" width="18" class="card-icon text-neutral-500 transition-colors duration-500"></iconify-icon>
+                                        <h3 class="text-base font-semibold text-white">Undemocratic Tax Funding</h3>
+                                    </div>
+                                    <p class="text-sm text-neutral-400 leading-relaxed">
+                                        The SST Foundation pays contributions to all registered religious communities in Sweden and they are taken from tax funds without the requirement of being independent and if they have introduced democracy in their religious communities.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="disadvantage-card group p-8 rounded-2xl border border-white/10 card-highlight" style="background: #0a0a0a;">
+                            <div class="flex items-start gap-6">
+                                <div class="flex-shrink-0">
+                                    <span class="card-number font-space text-3xl font-bold text-neutral-600 transition-all duration-500">02</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <iconify-icon icon="lucide:scale" width="18" class="card-icon text-neutral-500 transition-colors duration-500"></iconify-icon>
+                                        <h3 class="text-base font-semibold text-white">No Distinction Between Communities</h3>
+                                    </div>
+                                    <p class="text-sm text-neutral-400 leading-relaxed">
+                                        The SST Foundation makes no distinction between the Protestant Swedish Church, which has its own budget that is independent of tax funds, and other religious communities whose budgets are partly dependent on tax funds and partly on the anonymous contributions that religious communities — Catholics, Orthodox, Jews, Muslims, Buddhists and Hindus — receive, which influences and governs these religious communities. If Christians and Jews in the Nordic countries receive anonymous contributions from Christian Americans in the USA and from Israel, other religious communities also receive anonymous contributions from other countries that belong to the same religion.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="disadvantage-card group p-8 rounded-2xl border border-white/10 card-highlight" style="background: #0a0a0a;">
+                            <div class="flex items-start gap-6">
+                                <div class="flex-shrink-0">
+                                    <span class="card-number font-space text-3xl font-bold text-neutral-600 transition-all duration-500">03</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <iconify-icon icon="lucide:globe" width="18" class="card-icon text-neutral-500 transition-colors duration-500"></iconify-icon>
+                                        <h3 class="text-base font-semibold text-white">Foreign Influence Through Financial Dependence</h3>
+                                    </div>
+                                    <p class="text-sm text-neutral-400 leading-relaxed">
+                                        This financial dependence naturally influences and controls these religious communities. This is what makes it more difficult to resolve, among other things, the 78-year-long Israel-Palestine conflict.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="disadvantage-card group p-8 rounded-2xl border border-white/10 card-highlight" style="background: #0a0a0a;">
+                            <div class="flex items-start gap-6">
+                                <div class="flex-shrink-0">
+                                    <span class="card-number font-space text-3xl font-bold text-neutral-600 transition-all duration-500">04</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <iconify-icon icon="lucide:landmark" width="18" class="card-icon text-neutral-500 transition-colors duration-500"></iconify-icon>
+                                        <h3 class="text-base font-semibold text-white">Unfair Resource Asymmetry with Political Parties</h3>
+                                    </div>
+                                    <p class="text-sm text-neutral-400 leading-relaxed">
+                                        The Nordic Protestant churches have church elections and run an election campaign in which politicians and parliamentary parties participate. These enormous resources can come from political parties that receive party support with the aim of keeping them away from the influence of other countries and making them independent in their politics.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Divider -->
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="h-px w-full" style="background: linear-gradient(to right, transparent, rgba(6,182,212,0.25), transparent);"></div>
+        </div>
+
+        <!-- Why Multi-Religion Support Section -->
+        <section id="support" class="py-24 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="section-observer">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                        <!-- Visual / Illustration -->
+                        <div class="lg:col-span-5">
+                            <div class="relative p-8 rounded-3xl border border-white/10 card-highlight overflow-hidden" style="background: #0a0a0a;">
+                                <!-- Decorative glow -->
+                                <div class="absolute -top-20 -right-20 w-40 h-40 rounded-full" style="background: radial-gradient(circle, rgba(6,182,212,0.12), transparent 70%);"></div>
+
+                                <div class="relative space-y-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl logo-gradient flex items-center justify-center" style="box-shadow: 0 0 18px rgba(6,182,212,0.55);">
+                                            <iconify-icon icon="lucide:wallet" width="18" class="text-black"></iconify-icon>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-semibold text-white">Multi-Religion Support</div>
+                                            <div class="text-[11px] text-neutral-500 font-mono">MRVS Financial Module</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div class="flex items-center gap-3 p-3 rounded-xl border border-trust-500/20" style="background: rgba(6,182,212,0.05);">
+                                            <iconify-icon icon="lucide:check-circle-2" width="16" class="text-trust-400 flex-shrink-0"></iconify-icon>
+                                            <span class="text-xs text-neutral-300">Independent of tax funds</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 rounded-xl border border-trust-500/20" style="background: rgba(6,182,212,0.05);">
+                                            <iconify-icon icon="lucide:check-circle-2" width="16" class="text-trust-400 flex-shrink-0"></iconify-icon>
+                                            <span class="text-xs text-neutral-300">Democracy as requirement</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 rounded-xl border border-trust-500/20" style="background: rgba(6,182,212,0.05);">
+                                            <iconify-icon icon="lucide:check-circle-2" width="16" class="text-trust-400 flex-shrink-0"></iconify-icon>
+                                            <span class="text-xs text-neutral-300">Transparent funding model</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 rounded-xl border border-trust-500/20" style="background: rgba(6,182,212,0.05);">
+                                            <iconify-icon icon="lucide:check-circle-2" width="16" class="text-trust-400 flex-shrink-0"></iconify-icon>
+                                            <span class="text-xs text-neutral-300">No foreign influence</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 rounded-xl border border-trust-500/20" style="background: rgba(6,182,212,0.05);">
+                                            <iconify-icon icon="lucide:check-circle-2" width="16" class="text-trust-400 flex-shrink-0"></iconify-icon>
+                                            <span class="text-xs text-neutral-300">Equal treatment of all faiths</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text content -->
+                        <div class="lg:col-span-7 space-y-6">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 mb-2" style="background: rgba(6,182,212,0.05);">
+                                <iconify-icon icon="lucide:sparkles" width="12" class="text-trust-400"></iconify-icon>
+                                <span class="text-[11px] font-medium tracking-wider uppercase text-trust-400">The Solution</span>
+                            </div>
+                            <h2 class="font-space font-bold tracking-tight leading-[1.05] title-gradient text-3xl md:text-4xl">
+                                Why a new funding policy is necessary
+                            </h2>
+                            <p class="text-lg font-light text-neutral-400 tracking-tight leading-relaxed">
+                                Against the background of the SST Foundation's structural disadvantages — undemocratic tax funding, lack of distinction between communities, foreign financial influence, and unfair resource asymmetry — it is important that a new independent funding policy, Multi-Religion Support, is introduced.
+                            </p>
+                            <p class="text-lg font-light text-neutral-400 tracking-tight leading-relaxed">
+                                Multi-Religion Support ensures that financial assistance to religious communities is transparent, fair, and conditional upon the introduction of democratic governance structures — free from foreign influence and tax dependency.
+                            </p>
+                            <div class="pt-4">
+                                <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-trust-500 text-black text-sm font-semibold tracking-tight glow-btn">
+                                    Read more about Multi-Religion Support
+                                    <iconify-icon icon="lucide:arrow-up-right" width="16"></iconify-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Divider -->
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="h-px w-full" style="background: linear-gradient(to right, transparent, rgba(6,182,212,0.25), transparent);"></div>
+        </div>
+
+        <!-- Comparison Section -->
+        <section class="py-24 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="section-observer">
+                    <div class="text-center mb-16">
+                        <h2 class="font-space font-bold tracking-tight leading-[1.05] title-gradient text-3xl md:text-4xl">
+                            SST Foundation vs Multi-Religion Support
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- SST Foundation -->
+                        <div class="p-8 rounded-2xl border border-red-500/20" style="background: rgba(239,68,68,0.02);">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                    <iconify-icon icon="lucide:x" width="18" class="text-red-400"></iconify-icon>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-semibold text-white">SST Foundation</h3>
+                                    <p class="text-[11px] text-red-400/70 font-mono">Current System</p>
+                                </div>
+                            </div>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:minus" width="16" class="text-red-400/60 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-400">Dependent on tax funds</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:minus" width="16" class="text-red-400/60 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-400">No democracy requirement</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:minus" width="16" class="text-red-400/60 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-400">No distinction between communities</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:minus" width="16" class="text-red-400/60 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-400">Allows foreign financial influence</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:minus" width="16" class="text-red-400/60 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-400">Contributes to geopolitical conflicts</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Multi-Religion Support -->
+                        <div class="p-8 rounded-2xl border border-trust-500/20" style="background: rgba(6,182,212,0.03);">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl logo-gradient flex items-center justify-center" style="box-shadow: 0 0 18px rgba(6,182,212,0.55);">
+                                    <iconify-icon icon="lucide:check" width="18" class="text-black"></iconify-icon>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-semibold text-white">Multi-Religion Support</h3>
+                                    <p class="text-[11px] text-trust-400/70 font-mono">New System</p>
+                                </div>
+                            </div>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:check" width="16" class="text-trust-400 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-300">Independent of tax funds</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:check" width="16" class="text-trust-400 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-300">Democracy as a condition</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:check" width="16" class="text-trust-400 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-300">Fair distinction between communities</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:check" width="16" class="text-trust-400 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-300">Eliminates foreign financial influence</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <iconify-icon icon="lucide:check" width="16" class="text-trust-400 mt-0.5 flex-shrink-0"></iconify-icon>
+                                    <span class="text-sm text-neutral-300">Supports conflict resolution</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="section-observer">
+                    <div class="relative p-12 md:p-16 rounded-3xl border border-trust-500/20 text-center overflow-hidden" style="background: rgba(6,182,212,0.03);">
+                        <!-- Background glow -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full" style="background: radial-gradient(circle, rgba(6,182,212,0.08), transparent 60%);"></div>
+
+                        <div class="relative">
+                            <h2 class="font-space font-bold tracking-tight leading-[1.05] title-gradient text-3xl md:text-5xl mb-6">
+                                Ready to learn more?
+                            </h2>
+                            <p class="text-lg font-light text-neutral-400 tracking-tight leading-relaxed max-w-xl mx-auto mb-10">
+                                Explore the full Multi-Religion Support framework and understand how it creates a fairer, more transparent funding model for all religious communities.
+                            </p>
+                            <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-trust-500 text-black text-sm font-semibold tracking-tight glow-btn">
+                                Read more about Multi-Religion Support
+                                <iconify-icon icon="lucide:arrow-up-right" width="16"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6 border-t border-white/5">
+            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="h-6 w-6 rounded logo-gradient flex items-center justify-center" style="box-shadow: 0 0 18px rgba(6,182,212,0.55);">
+                        <iconify-icon icon="lucide:vote" width="14" class="text-black"></iconify-icon>
+                    </div>
+                    <span class="font-space font-semibold text-sm tracking-tight">MRVS</span>
+                    <span class="text-xs text-neutral-600 ml-2">Multi-Religion Election System</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="https://multi-religion-support.multireligionvalsystem.eu.org" target="_blank" class="nav-link text-xs text-neutral-500">Multi-Religion Support</a>
+                    <span class="text-neutral-700">·</span>
+                    <span class="text-xs text-neutral-600">© 2025 MRVS</span>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Digital Rain Canvas
+        const canvas = document.getElementById('rain-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = ['⟟', 'Δ', '0', '1', 'മ', 'ר', 'ص', '∞', '○', '特约'];
+        const colWidth = 20;
+        let columns = [];
+
+        function initColumns() {
+            const numCols = Math.floor(canvas.width / colWidth);
+            columns = [];
+            for (let i = 0; i < numCols; i++) {
+                columns.push(Math.random() * canvas.height);
+            }
+        }
+        initColumns();
+        window.addEventListener('resize', initColumns);
+
+        function drawRain() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#06b6d4';
+            ctx.font = '14px "Geist Mono", monospace';
+
+            for (let i = 0; i < columns.length; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(char, i * colWidth, columns[i]);
+                if (columns[i] > canvas.height && Math.random() > 0.975) {
+                    columns[i] = 0;
+                }
+                columns[i] += colWidth;
+            }
+        }
+
+        setInterval(drawRain, 50);
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.section-observer').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+<footer>
+  <div class="footer-links">
+    <h4>Our Network</h4>
+    <ul>
+      <li><a href="political-practices-in-exile.multireligionvalsystem.eu.org/
+">political-practices-in-exile</a></li>
+      <li><a href="https:fdu.multireligionvalsystem.eu.org/tre-reformer-som-forandrar-varlden/">FDU-tre-reformer-som-forandrar-varlden</a></li>
+     <li><a href="multireligionvalsystem.eu.org/Framtiden-för-miljövänliga-begravningsmetoder/">Framtiden-för-miljövänliga-begravningsmetoder</a></li</a></li>
+     <li><a href="multireligionvalsystem.eu.org/Nej-till-karnkraft/">Nej till kärnkraft</a></li>
+      <li><a href="https://multireligionvalsystem.eu.org/FRED">multireligionvalsystem.eu.org/FRED</a></li>
+<li><a href="https://frc.multireligionvalsystem.eu.org">FRC</a></li><li>
+<li><a href="a-multi-religion-election-system.multireligionvalsystem.eu.org/about">About</a></li>
+<li><a href="https://fdu.multireligionvalsystem.eu.org/israels-apartheid/">israels apartheid</a></li>
+<li><a href="https://clawdbot.multireligionvalsystem.eu.org">Clawdbot AI</a></li>
+     
+    </ul>
+  </div>
+</footer>
+</body>
+</html>
